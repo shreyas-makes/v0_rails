@@ -1,0 +1,42 @@
+# Source files (only distribute compiled code)
+js-src/
+
+# Tests
+test/
+spec/
+examples/
+coverage/
+.rspec
+.rspec_status
+
+# Ruby-specific files
+*.gemspec
+*.gem
+ruby-src/
+spec/
+Gemfile
+Gemfile.lock
+
+# GitHub specific files
+.github/
+
+# Development config
+.eslintrc.js
+.rubocop.yml
+.rubocop_todo.yml
+.prettierrc
+jest.config.js
+
+# Git files
+.git/
+.gitignore
+
+# Editor-specific files
+.vscode/
+.idea/
+*.iml
+
+# Misc
+tmp/
+*.log
+example_output/ 

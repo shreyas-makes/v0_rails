@@ -1,0 +1,47 @@
+{
+  "name": "v0-rails",
+  "version": "0.1.0",
+  "description": "Convert React/JSX + Tailwind UI code to Rails ViewComponent classes and ERB templates",
+  "main": "cli/index.js",
+  "bin": {
+    "v0-rails": "./cli/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint .",
+    "build": "babel js-src -d lib"
+  },
+  "keywords": [
+    "rails",
+    "viewcomponent",
+    "jsx",
+    "react",
+    "tailwind",
+    "vercel",
+    "v0"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@babel/core": "^7.12.13",
+    "@babel/parser": "^7.12.13",
+    "@babel/plugin-syntax-jsx": "^7.12.13",
+    "@babel/plugin-syntax-typescript": "^7.12.13",
+    "@babel/plugin-syntax-class-properties": "^7.12.13",
+    "@babel/traverse": "^7.12.13",
+    "@babel/types": "^7.12.13",
+    "commander": "^11.1.0",
+    "glob": "^10.3.10",
+    "chalk": "^5.3.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.12.13",
+    "@babel/preset-env": "^7.12.13",
+    "eslint": "^8.57.0",
+    "eslint-plugin-security": "^2.1.1",
+    "jest": "^29.7.0"
+  }
+} 

@@ -1,0 +1,44 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# v0-rails Conversion Process
+
+This document explains how the conversion from JSX to Rails ViewComponents works.
+
+## Conversion Pipeline
+
+1. **Parse JSX/TSX** - Using Babel parser to create an AST
+   - See: [js-src/transforms/transformer.js](mdc:js-src/transforms/transformer.js) (lines 30-50)
+
+2. **Extract Component Information** - Identify props, events, state
+   - See: [js-src/transforms/jsx-processor.js](mdc:js-src/transforms/jsx-processor.js)
+   - Props extraction: [js-src/utils/prop-extractor.js](mdc:js-src/utils/prop-extractor.js)
+   - Event detection: [js-src/utils/event-detector.js](mdc:js-src/utils/event-detector.js)
+   - Hook detection: [js-src/utils/hook-detector.js](mdc:js-src/utils/hook-detector.js)
+
+3. **Generate Intermediate Representation (IR)** - Abstract model of the component
+   - See: [js-src/transforms/ir-generator.js](mdc:js-src/transforms/ir-generator.js)
+
+4. **Transform JSX to HTML/ERB** - Convert React syntax to Rails templates
+   - See: [js-src/transforms/jsx-to-html.js](mdc:js-src/transforms/jsx-to-html.js)
+   - Key transformations:
+     - JSX expressions → ERB tags
+     - Conditionals (`x && y`, ternaries) → ERB if statements
+     - Loops (`array.map()`) → ERB each loops
+     - Event handlers → Stimulus data-action attributes
+
+5. **Generate Output Files** - Create Rails ViewComponent files
+   - Ruby class: [js-src/generators/ruby-class-generator.js](mdc:js-src/generators/ruby-class-generator.js)
+   - ERB template: [js-src/generators/erb-template-generator.js](mdc:js-src/generators/erb-template-generator.js)
+   - Stimulus controller: [js-src/generators/stimulus-controller-generator.js](mdc:js-src/generators/stimulus-controller-generator.js)
+   - File writer: [js-src/utils/file-writer.js](mdc:js-src/utils/file-writer.js)
+
+## Key Transformations
+
+- **Props** → Ruby instance variables (`@props`)
+- **Event handlers** → Stimulus actions
+- **Conditional rendering** → ERB if statements
+- **Component composition** → ViewComponent nesting
+- **Class names** → Preserved for Tailwind

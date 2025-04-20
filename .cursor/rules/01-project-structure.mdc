@@ -1,0 +1,36 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# v0-rails Project Structure
+
+This project converts React/JSX + Tailwind UI code to Rails ViewComponent classes and ERB templates.
+
+## Main Components:
+
+1. **CLI Tool** - Node.js interface for conversion
+   - Entry point: [cli/index.js](mdc:cli/index.js)
+
+2. **Transformer Pipeline** - Core conversion logic
+   - Main transformer: [js-src/transforms/transformer.js](mdc:js-src/transforms/transformer.js)
+   - JSX processor: [js-src/transforms/jsx-processor.js](mdc:js-src/transforms/jsx-processor.js)
+   - JSX to HTML converter: [js-src/transforms/jsx-to-html.js](mdc:js-src/transforms/jsx-to-html.js)
+
+3. **Ruby Gem** - Rails integration components
+   - Main module: [lib/v0_rails.rb](mdc:lib/v0_rails.rb)
+   - Rails integration: [lib/v0_rails/railtie.rb](mdc:lib/v0_rails/railtie.rb)
+
+4. **Output Generators** - Create Rails-compatible files
+   - Ruby class generator: [js-src/generators/ruby-class-generator.js](mdc:js-src/generators/ruby-class-generator.js)
+   - ERB template generator: [js-src/generators/erb-template-generator.js](mdc:js-src/generators/erb-template-generator.js)
+   - Stimulus controller generator: [js-src/generators/stimulus-controller-generator.js](mdc:js-src/generators/stimulus-controller-generator.js)
+
+5. **Utilities** - Helper functions
+   - File writer: [js-src/utils/file-writer.js](mdc:js-src/utils/file-writer.js)
+   - String utilities: [js-src/utils/string-utils.js](mdc:js-src/utils/string-utils.js)
+
+6. **Examples & Tests**
+   - Example components: [examples/](mdc:examples)
+   - JS tests: [test/transformer.test.js](mdc:test/transformer.test.js)
+   - Ruby tests: [spec/v0_rails_spec.rb](mdc:spec/v0_rails_spec.rb)

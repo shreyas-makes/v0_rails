@@ -1,0 +1,67 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# v0-rails Usage Guide
+
+This document explains how to use the v0-rails tool to convert React components to Rails ViewComponents.
+
+## CLI Usage
+
+The main CLI command follows this pattern:
+```bash
+v0-rails <input-glob> [options]
+```
+
+See: [cli/index.js](mdc:cli/index.js) for implementation details.
+
+## Common Options
+
+- `-d, --dest <path>` - Destination directory (default: app/components)
+- `-n, --namespace <ns>` - Ruby module namespace (default: Ui)
+- `-s, --stimulus` - Generate Stimulus controllers for interactivity
+- `-u, --update` - Update existing components with changes
+- `--dry-run` - Show what would be generated without writing files
+- `-v, --verbose` - Show detailed output during conversion
+
+## Example Workflow
+
+1. **Install the tool**
+   ```bash
+   npm install -g v0-rails
+   ```
+
+2. **Prepare v0 components**
+   - Place JSX/TSX files in a directory
+   - Example: [examples/Card.jsx](mdc:examples/Card.jsx)
+
+3. **Run the converter**
+   ```bash
+   v0-rails "components/**/*.jsx" -d app/components -n Ui -s
+   ```
+
+4. **Use in Rails**
+   ```erb
+   <%= render(Ui::CardComponent.new(
+     title: "My Card",
+     description: "Card description",
+     imageUrl: image_path("image.jpg")
+   )) %>
+   ```
+
+## Common Patterns
+
+- **Simple Props**: Direct mapping to Ruby instance variables
+- **Conditional Rendering**: Converted to ERB if statements
+- **Event Handlers**: Converted to Stimulus actions
+- **Collections**: Converted to ERB each loops
+
+## Examples & Templates
+
+- Card component: [examples/Card.jsx](mdc:examples/Card.jsx)
+- Todo list component: [examples/TodoList.jsx](mdc:examples/TodoList.jsx)
+
+## Testing
+
+See: [test/transformer.test.js](mdc:test/transformer.test.js) for examples of testing conversions.
