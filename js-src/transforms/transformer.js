@@ -120,6 +120,27 @@ async function transformJsxFiles(globPattern, options) {
   return result;
 }
 
+const processFile = async (filePath, options) => {
+  const ext = path.extname(filePath);
+  
+  if (ext === '.css') {
+    return processCssFile(filePath, options);
+  }
+  // ... existing JSX/TSX processing ...
+};
+
+const processCssFile = (filePath, options) => {
+  const cssContent = fs.readFileSync(filePath, 'utf8');
+  const outputPath = path.join(options.cssDest, path.basename(filePath));
+  
+  return {
+    type: 'css',
+    sourcePath: filePath,
+    destPath: outputPath,
+    content: cssContent
+  };
+};
+
 module.exports = {
   transformJsxFiles
 }; 

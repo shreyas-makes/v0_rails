@@ -131,6 +131,22 @@ async function fileExists(filePath) {
   }
 }
 
+const writeFiles = (outputs, options) => {
+  outputs.forEach(output => {
+    if (output.type === 'css') {
+      const destDir = path.dirname(output.destPath);
+      if (!fs.existsSync(destDir)) {
+        fs.mkdirSync(destDir, { recursive: true });
+      }
+      fs.writeFileSync(output.destPath, output.content);
+      if (options.verbose) {
+        console.log(`Wrote CSS to: ${output.destPath}`);
+      }
+    }
+    // ... existing file writing logic ...
+  });
+};
+
 module.exports = {
   writeComponentFiles
 }; 

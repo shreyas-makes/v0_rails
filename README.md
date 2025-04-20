@@ -177,14 +177,15 @@ Generated ERB template:
 </div>
 ```
 
-4. Manually copy CSS files:
-```bash
-cp my-v0-project/app/globals.css rails-app/app/assets/stylesheets/
-```
+4. CSS files are automatically copied to the assets directory
 
 ### Key Features
+- **CSS File Support**  
+  Copies and transforms CSS files to Rails asset pipeline
+- **Tailwind Compatibility**  
+  Preserves class names and handles Rails asset path helpers
 - **File Type Support**  
-  Converts `.jsx` and `.tsx` while ignoring other file types
+  Converts `.jsx`, `.tsx` and copies `.css` files
 - **Directory Structure Preservation**  
   Maintains folder hierarchy under destination directory
 - **Name Conversion**  
