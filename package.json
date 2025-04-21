@@ -1,6 +1,6 @@
 {
   "name": "v0-rails",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "Convert React/JSX + Tailwind UI code to Rails ViewComponent classes and ERB templates",
   "main": "cli/index.js",
   "bin": {
