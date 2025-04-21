@@ -75,6 +75,193 @@ function setupRailsApp() {
   console.log('2. Convert your React components using: v0-rails "path/to/components/**/*.jsx"');
 }
 
+/**
+ * Set up Tailwind configuration
+ */
+function setupTailwindConfig(options) {
+  console.log('🔧 Setting up Tailwind configuration...');
+  
+  const tailwindConfigPath = './tailwind.config.js';
+  
+  if (!fs.existsSync(tailwindConfigPath)) {
+    console.error('❌ Tailwind configuration file not found. Make sure Tailwind is installed.');
+    return false;
+  }
+  
+  try {
+    let tailwindConfig = fs.readFileSync(tailwindConfigPath, 'utf8');
+    
+    // Add shadcn theme if requested
+    if (options.shadcnTheme) {
+      console.log('🎨 Adding shadcn theme to Tailwind configuration...');
+      
+      // Basic shadcn theme implementation
+      const shadcnTheme = `
+  theme: {
+    extend: {
+      colors: {
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
+    },
+  },`;
+      
+      // Replace theme section or add it if it doesn't exist
+      if (tailwindConfig.includes('theme:')) {
+        tailwindConfig = tailwindConfig.replace(/theme:\s*\{[^}]*\}/s, shadcnTheme);
+      } else {
+        tailwindConfig = tailwindConfig.replace('module.exports = {', 'module.exports = {\n' + shadcnTheme);
+      }
+      
+      // Create CSS variables file if it doesn't exist
+      const cssVarsPath = './app/assets/stylesheets/shadcn_theme.css';
+      if (!fs.existsSync(cssVarsPath)) {
+        const cssVars = `
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+ 
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+ 
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+ 
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+ 
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+ 
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+ 
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+ 
+    --radius: 0.5rem;
+  }
+ 
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+ 
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+ 
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+ 
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+ 
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+ 
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+ 
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+ 
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+ 
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}`;
+        fs.writeFileSync(cssVarsPath, cssVars);
+        console.log(`✅ Created shadcn theme CSS variables at ${cssVarsPath}`);
+      }
+    }
+    
+    // Make sure container is configured
+    if (!tailwindConfig.includes('container:')) {
+      const containerConfig = `
+  container: {
+    center: true,
+    padding: "2rem",
+    screens: {
+      "2xl": "1400px",
+    },
+  },`;
+      tailwindConfig = tailwindConfig.replace('theme: {', 'theme: {' + containerConfig);
+    }
+    
+    // Add additional common v0 plugin configurations
+    if (!tailwindConfig.includes('@tailwindcss/forms')) {
+      const pluginsSection = tailwindConfig.includes('plugins:') ? 
+        tailwindConfig.match(/plugins:\s*\[[^\]]*\]/)[0] : 
+        'plugins: []';
+      
+      const newPluginsSection = pluginsSection.replace(']', 
+        pluginsSection.includes('require(') ? 
+          ', require("@tailwindcss/forms")]' : 
+          'require("@tailwindcss/forms")]');
+      
+      tailwindConfig = tailwindConfig.replace(pluginsSection, newPluginsSection);
+    }
+    
+    fs.writeFileSync(tailwindConfigPath, tailwindConfig);
+    console.log('✅ Tailwind configuration updated successfully!');
+    
+    // Inform about potential dependencies
+    console.log('ℹ️ You may need to install additional dependencies:');
+    console.log('npm install @tailwindcss/forms --save-dev');
+    
+    return true;
+  } catch (error) {
+    console.error(`❌ Error updating Tailwind configuration: ${error.message}`);
+    return false;
+  }
+}
+
 program
   .name('v0-rails')
   .description('Convert React/JSX + Tailwind UI code to Rails ViewComponent classes and ERB templates')
@@ -85,6 +272,19 @@ program
   .option('-n, --namespace <ns>', 'Ruby module namespace', 'Ui')
   .option('-s, --stimulus', 'Generate Stimulus controllers when needed')
   .option('-u, --update', 'Overwrite existing components diff-aware')
+  .option('--source-map <path>', 'Copy original v0 components to preserve for reference', null)
+  .option('--maintain-hierarchy', 'Preserve directory structure of source components')
+  .option('--generate-controllers-from-structure', 'Create controllers based on v0 page structure')
+  .option('--generate-routes-from-structure', 'Create routes based on v0 page structure')
+  .option('--generate-views-from-structure', 'Create view templates for pages')
+  .option('--configure-tailwind', 'Set up Tailwind configuration for component styles')
+  .option('--shadcn-theme', 'Use shadcn theme in Tailwind configuration')
+  .option('--detect-slots', 'Automatically detect component slots (renders_one/renders_many)')
+  .option('--slot-mapping <mapping>', 'Map JSX children to slots (format: content:renders_one,items:renders_many)')
+  .option('--generate-helpers', 'Generate Rails helper methods for components')
+  .option('--enhanced-erb-conversion', 'Improve JSX to ERB conversion with Rails-specific syntax')
+  .option('--icon-component', 'Special handling for icon components')
+  .option('--handle-composition', 'Handle nested component composition')
   .option('--ir <file>', 'Dump intermediate JSON for debugging')
   .option('--strict', 'Fail on any unsupported syntax')
   .option('--no-tests', 'Skip test generation')
@@ -98,6 +298,23 @@ program
         process.exit(1);
       }
       
+      // Configure Tailwind if requested
+      if (options.configureTailwind) {
+        setupTailwindConfig({
+          shadcnTheme: options.shadcnTheme
+        });
+      }
+      
+      // Parse slot mapping if provided
+      let slotMapping = {};
+      if (options.slotMapping) {
+        options.slotMapping.split(',').forEach(mapping => {
+          const [key, value] = mapping.split(':');
+          if (key && value) {
+            slotMapping[key.trim()] = value.trim();
+          }
+        });
+      }
       
       // Process files
       const result = await transformJsxFiles(inputGlob, {
@@ -109,7 +326,18 @@ program
         strict: options.strict,
         generateTests: !options.noTests,
         dryRun: options.dryRun,
-        verbose: options.verbose
+        verbose: options.verbose,
+        sourceMap: options.sourceMap,
+        maintainHierarchy: options.maintainHierarchy,
+        generateControllersFromStructure: options.generateControllersFromStructure,
+        generateRoutesFromStructure: options.generateRoutesFromStructure,
+        generateViewsFromStructure: options.generateViewsFromStructure,
+        detectSlots: options.detectSlots,
+        slotMapping: slotMapping,
+        generateHelpers: options.generateHelpers,
+        enhancedErbConversion: options.enhancedErbConversion,
+        iconComponent: options.iconComponent,
+        handleComposition: options.handleComposition
       });
       
       console.log(`✅ Successfully processed ${result.successCount} components`);

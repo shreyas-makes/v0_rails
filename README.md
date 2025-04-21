@@ -1,272 +1,460 @@
 # v0-rails
 
-Convert [Vercel v0](https://v0.dev/) React/JSX + Tailwind UI code into Rails‑native ViewComponent classes and ERB templates, preserving visual fidelity while minimizing JavaScript footprint.
+A friendly tool to convert beautiful Vercel v0 designs into Rails applications without JavaScript complexity.
 
-## Overview
+## What is v0-rails?
 
-The v0-rails converter exists to solve a specific problem: helping Rails developers use modern UI components without JavaScript overhead.
+v0-rails is a conversion tool that helps you turn UI designs made with [Vercel v0](https://v0.dev/) (a design tool that creates React/JSX + Tailwind code) into Ruby on Rails components. This lets you use modern, beautiful designs in your Rails app without needing to use React.
 
-### Why use this tool?
+```mermaid
+flowchart LR
+    A[Vercel v0 Design] -->|Generate| B[React/JSX Components]
+    B -->|Convert with v0-rails| C[Rails ViewComponents]
+    C -->|Use in| D[Your Rails App]
+    style A fill:#f9d5e5,stroke:#333,stroke-width:2px
+    style B fill:#eeeeee,stroke:#333,stroke-width:2px
+    style C fill:#d3f8e2,stroke:#333,stroke-width:2px
+    style D fill:#e3f2fd,stroke:#333,stroke-width:2px
+```
 
-* **Reduced JavaScript** - Converts React components to server-rendered Rails ViewComponents, eliminating client-side React bundle
-* **Framework alignment** - Lets you use Vercel v0's beautiful UI components within Rails' ecosystem
-* **Performance** - Server-rendered components load faster and use less client resources
-* **Maintainability** - Keeps your application in a single technology stack (Ruby/Rails) rather than mixing React and Rails
-* **Accessibility** - Works even with JavaScript disabled or limited
+### What problem does it solve?
+
+As a Rails developer, you might love v0's beautiful UI designs but don't want to add React to your app. v0-rails bridges this gap by converting those designs to native Rails components.
+
+### Benefits for beginners
+
+* **Less JavaScript** - Use modern UI designs without learning React
+* **Stay in Rails** - Keep your entire application in Rails without mixing frameworks
+* **Faster pages** - Components render on the server for better performance
+* **Easier maintenance** - Manage your UI in a single technology (Ruby/Rails)
+
+## What is Vercel v0?
+
+[Vercel v0](https://v0.dev/) is an AI-powered tool that creates beautiful UI designs. You describe what you want, and it generates the UI with React code and Tailwind CSS styling. v0-rails takes these designs and converts them to Rails.
+
+## Before You Start
+
+You'll need these tools installed:
+
+* Node.js version 20 or newer
+* Ruby version 3.3 or newer
+* Rails version 7.1 or newer
+* ViewComponent gem (version 3.9+)
+* Stimulus (version 3.2+)
+
+Don't worry if you're not familiar with all of these - we'll explain how they fit together!
 
 ## Installation
 
-### Node.js CLI
+You can use v0-rails as either a Node.js command-line tool or a Ruby gem.
+
+### Option 1: Install as a Node.js Tool
 
 ```bash
 npm install -g v0-rails
 ```
 
-### Ruby Gem
+This installs v0-rails as a command you can run from anywhere on your computer.
+
+### Option 2: Install as a Ruby Gem
+
+Add to your Rails app's Gemfile:
 
 ```ruby
-# Add to your Gemfile
 gem 'v0_rails'
 ```
 
-Then execute:
+Then install it:
 ```bash
 bundle install
 ```
 
-## Prerequisites
+## Getting Started (Simple Example)
 
-* Node.js >= 20
-* Ruby >= 3.3
-* Rails >= 7.1
-* ViewComponent >= 3.9
-* Stimulus >= 3.2
+Let's walk through a basic example of converting a v0 component:
 
-## Basic Usage
+```mermaid
+sequenceDiagram
+    participant User as You
+    participant V0 as Vercel v0
+    participant CLI as v0-rails CLI
+    participant Rails as Rails App
+    
+    User->>V0: Create design
+    V0->>User: Generate React code
+    User->>User: Save code to Button.jsx
+    User->>CLI: Run v0-rails Button.jsx -d app/components
+    CLI->>Rails: Generate ViewComponent files
+    User->>Rails: Use component in views
+    Rails->>User: Render component
+    
+    Note over User,Rails: Complete conversion workflow
+```
 
-Convert a single component:
+### Step 1: Get a v0 design
+
+First, visit [v0.dev](https://v0.dev/) and create a design (like a button, card, or form).
+v0 will generate React code that looks something like this:
+
+```jsx
+// Button.jsx
+export function Button({ children, variant = "primary", size = "medium" }) {
+  return (
+    <button className="rounded-md font-semibold bg-blue-500 text-white px-4 py-2">
+      {children}
+    </button>
+  )
+}
+```
+
+### Step 2: Save the v0 code
+
+Save this code in a file (like `Button.jsx`) on your computer.
+
+### Step 3: Convert to Rails
+
+Now run the v0-rails converter:
+
+```bash
+v0-rails Button.jsx -d app/components
+```
+
+### Step 4: Use in your Rails app
+
+The converter creates a ViewComponent you can use in your Rails views:
+
+```erb
+<%# In any Rails view %>
+<%= render(ButtonComponent.new) do %>
+  Click me!
+<% end %>
+```
+
+That's it! Your v0 design is now a Rails component.
+
+## Understanding the Conversion
+
+When v0-rails converts a component, it creates:
+
+1. A Ruby class (`app/components/button_component.rb`)
+2. An ERB template (`app/components/button_component.html.erb`) 
+3. Optional Stimulus controller for JavaScript interactions
+
+```mermaid
+flowchart TD
+    A[React Component<br/>Button.jsx] --> B[Conversion Process]
+    B --> C[Ruby Class<br/>button_component.rb]
+    B --> D[ERB Template<br/>button_component.html.erb]
+    B --> E{Interactive?}
+    E -->|Yes| F[Stimulus Controller<br/>button_controller.js]
+    E -->|No| G[No JS needed]
+    
+    style A fill:#f9d5e5,stroke:#333,stroke-width:2px
+    style B fill:#eeeeee,stroke:#333,stroke-width:2px
+    style C fill:#d3f8e2,stroke:#333,stroke-width:2px
+    style D fill:#d3f8e2,stroke:#333,stroke-width:2px
+    style F fill:#e3f2fd,stroke:#333,stroke-width:2px
+```
+
+You don't need to understand React to use these components - they work like regular Rails components.
+
+## Common Use Cases
+
+### Convert a Single Component
 
 ```bash
 v0-rails src/components/Button.jsx -d app/components
 ```
 
-Convert multiple components using glob patterns:
+This takes a single component file and converts it to a Rails component.
+
+### Convert Multiple Components
 
 ```bash
-v0-rails "src/{components,app}/*.{jsx,tsx}" --stimulus
+v0-rails "src/components/*.jsx" -d app/components
 ```
 
-## Advanced Usage
+This converts all JSX files in the components folder.
 
-### Complete Application Conversion
+### Convert Components with Interactive Features
 
 ```bash
-v0-rails "src/**/*.{jsx,tsx}" \
-  --source-map v0-components \
-  --maintain-hierarchy \
-  --dest app/components \
-  --namespace Ui \
-  --stimulus \
-  --generate-controllers-from-structure \
-  --generate-routes-from-structure \
-  --generate-views-from-structure \
-  --configure-tailwind --shadcn-theme \
-  --detect-slots \
-  --generate-helpers \
-  --enhanced-erb-conversion \
-  --icon-component \
-  --handle-composition
+v0-rails "src/components/*.jsx" -d app/components --stimulus
 ```
 
-### Structure Preservation
+The `--stimulus` flag adds JavaScript controllers for interactive elements.
 
-Preserve the original v0 component structure for reference:
+## Step-by-Step Workflow
+
+1. **Design**: Create UI components at [v0.dev](https://v0.dev/)
+2. **Download**: Save the generated React components
+3. **Convert**: Run v0-rails on those components
+4. **Use**: Add the components to your Rails views
+
+## Working with Components
+
+### Component Structure
+
+```mermaid
+classDiagram
+    class ButtonComponent {
+        +initialize(variant, size)
+        +classes()
+        +renders_one :content
+    }
+    
+    class CardComponent {
+        +initialize()
+        +renders_one :header
+        +renders_one :content
+        +renders_many :items
+    }
+    
+    class View {
+        +render(component)
+    }
+    
+    View --> ButtonComponent : renders
+    View --> CardComponent : renders
+```
+
+### Basic Example
+
+```erb
+<%# Simple button %>
+<%= render(ButtonComponent.new(variant: "primary", size: "medium")) do %>
+  Click me
+<% end %>
+```
+
+### Components with Options
+
+```erb
+<%# Card with header and content %>
+<%= render(CardComponent.new) do %>
+  <%= render CardHeaderComponent.new do %>
+    My Card Title
+  <% end %>
+  
+  <%= render CardContentComponent.new do %>
+    This is the card content.
+  <% end %>
+<% end %>
+```
+
+## Advanced Features (For When You're Ready)
+
+As you get comfortable with v0-rails, you can explore more powerful features:
+
+### Convert an Entire Application Structure
 
 ```bash
-v0-rails "src/**/*.{jsx,tsx}" --source-map v0-components --maintain-hierarchy
+v0-rails "src/**/*.jsx" --dest app/components --stimulus
 ```
 
-### Dynamic Controller & Route Generation
+This converts all components in your source directory.
 
-Intelligently map v0/Next.js pages to Rails controllers and routes:
+```mermaid
+flowchart TB
+    A[React Components] --> B[v0-rails Converter]
+    B --> C[Rails Components]
+    B --> D[Stimulus Controllers]
+    B --> E[Component Helpers]
+    B --> F[Component Previews]
+    
+    C --> G[Views]
+    D --> G
+    E --> G
+    
+    style A fill:#f9d5e5,stroke:#333,stroke-width:2px
+    style B fill:#eeeeee,stroke:#333,stroke-width:2px
+    style C fill:#d3f8e2,stroke:#333,stroke-width:2px
+    style D fill:#e3f2fd,stroke:#333,stroke-width:2px
+    style E fill:#fff9c4,stroke:#333,stroke-width:2px
+    style F fill:#bbdefb,stroke:#333,stroke-width:2px
+    style G fill:#c8e6c9,stroke:#333,stroke-width:2px
+```
+
+### Generate Rails Controllers from v0 Pages
 
 ```bash
-v0-rails "src/app/**/*.{jsx,tsx}" \
-  --generate-controllers-from-structure \
-  --generate-routes-from-structure \
-  --generate-views-from-structure
+v0-rails "src/app/**/*.jsx" --generate-controllers-from-structure
 ```
 
-For example:
-- `src/app/page.jsx` → `HomeController#index`, route: `root to: "home#index"`
-- `src/app/about/page.jsx` → `AboutController#index`, route: `get "about", to: "about#index"`
-- `src/app/products/page.jsx` → `ProductsController#index`
-- `src/app/products/[id]/page.jsx` → `ProductsController#show`, route: `resources :products, only: [:index, :show]`
+This creates Rails controllers based on your v0 page structure.
 
-### Advanced Component Handling
-
-Handle complex component relationships and patterns:
-
-```bash
-v0-rails "src/components/*.jsx" \
-  --detect-slots \
-  --slot-mapping=content:renders_one,items:renders_many \
-  --handle-composition \
-  --icon-component
+```mermaid
+flowchart LR
+    A[Next.js Page Structure] --> B[v0-rails]
+    
+    subgraph "Next.js/React Structure"
+    A --> C[src/app/page.jsx]
+    A --> D[src/app/about/page.jsx]
+    A --> E[src/app/products/page.jsx]
+    A --> F[src/app/products/[id]/page.jsx]
+    end
+    
+    subgraph "Rails Structure"
+    B --> G[HomeController#index]
+    B --> H[AboutController#index]
+    B --> I[ProductsController#index]
+    B --> J[ProductsController#show]
+    end
+    
+    style A fill:#f9d5e5,stroke:#333,stroke-width:2px
+    style B fill:#eeeeee,stroke:#333,stroke-width:2px
 ```
 
-### Tailwind Configuration
-
-Set up Tailwind with shadcn theme configurations:
+### Configure Tailwind with shadcn Theme
 
 ```bash
 v0-rails --configure-tailwind --shadcn-theme
 ```
 
-## CLI Options Reference
+Sets up your Tailwind configuration with the shadcn theme used in v0.
 
-| Option | Description | Example |
+## Helpful Options Reference
+
+Here are some useful options to try:
+
+| Option | What It Does | When To Use It |
 |--------|-------------|---------|
-| `-d, --dest` | Output directory | `-d app/components` |
-| `-n, --namespace` | Ruby module namespace | `-n Admin::Ui` |
-| `-s, --stimulus` | Generate JS controllers | `--stimulus` |
-| `-u, --update` | Update existing components | `--update` |
-| `--dry-run` | Preview changes | `--dry-run` |
-| `--strict` | Fail on warnings | `--strict` |
-| `--source-map` | Copy original components | `--source-map v0-components` |
-| `--maintain-hierarchy` | Preserve directory structure | `--maintain-hierarchy` |
-| `--generate-controllers-from-structure` | Create controllers based on v0 pages | `--generate-controllers-from-structure` |
-| `--generate-routes-from-structure` | Create routes based on v0 pages | `--generate-routes-from-structure` |
-| `--generate-views-from-structure` | Create view templates | `--generate-views-from-structure` |
-| `--configure-tailwind` | Set up Tailwind config | `--configure-tailwind` |
-| `--shadcn-theme` | Use shadcn theme in Tailwind | `--shadcn-theme` |
-| `--detect-slots` | Auto-detect component slots | `--detect-slots` |
-| `--slot-mapping` | Map JSX children to slots | `--slot-mapping=content:renders_one` |
-| `--generate-helpers` | Create helper methods | `--generate-helpers` |
-| `--enhanced-erb-conversion` | Improved JSX to ERB conversion | `--enhanced-erb-conversion` |
-| `--icon-component` | Special handling for icons | `--icon-component` |
-| `--handle-composition` | Handle nested components | `--handle-composition` |
+| `-d, --dest` | Sets where files are created | Always (to specify output directory) |
+| `--stimulus` | Adds JavaScript for interactive elements | When your components have clickable parts |
+| `--dry-run` | Shows what would change without making changes | To preview the conversion first |
+| `--detect-slots` | Automatically detects component parts | For complex, nested components |
+| `--enhanced-erb-conversion` | Better JSX-to-ERB conversion | For complex components with logic |
 
-## Conversion Process
+## Examples: Before and After
 
-### Example: Original JSX
+### Before (React/JSX)
 
 ```jsx
-import React from 'react';
-
-const Card = ({ title, description, imageUrl, buttonText, onClick }) => {
+// Button.jsx
+export function Button({ children, variant = "primary", size = "md" }) {
+  const classes = `btn ${variant} ${size}`;
+  
   return (
-    <div className="max-w-sm rounded overflow-hidden shadow-lg">
-      {imageUrl && (
-        <img className="w-full" src={imageUrl} alt={title} />
-      )}
-      <div className="px-6 py-4">
-        <div className="font-bold text-xl mb-2">{title}</div>
-        <p className="text-gray-700 text-base">
-          {description}
-        </p>
-      </div>
-      <div className="px-6 pt-4 pb-2">
-        <button 
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          onClick={onClick}
-        >
-          {buttonText || 'Learn More'}
-        </button>
-      </div>
-    </div>
+    <button className={classes}>
+      {children}
+    </button>
   );
-};
+}
 ```
 
-### Generated ViewComponent
+### After (Rails ViewComponent)
 
 ```ruby
-# frozen_string_literal: true
-
-module Ui
-  class CardComponent < ViewComponent::Base
-    attr_reader :title
-    attr_reader :description
-    attr_reader :imageUrl
-    attr_reader :buttonText
-    attr_reader :onClick
-
-    def initialize(title:, description:, imageUrl:, buttonText: nil, onClick:)
-      @title = title
-      @description = description
-      @imageUrl = imageUrl
-      @buttonText = buttonText
-      @onClick = onClick
-    end
+# button_component.rb
+class ButtonComponent < ViewComponent::Base
+  renders_one :content
+  
+  def initialize(variant: "primary", size: "md")
+    @variant = variant
+    @size = size
+  end
+  
+  def classes
+    "btn #{@variant} #{@size}"
   end
 end
 ```
 
-### Generated ERB Template
-
 ```erb
-<div class="max-w-sm rounded overflow-hidden shadow-lg" data-controller="card">
-  <% if @imageUrl %>
-    <img class="w-full" src="<%= @imageUrl %>" alt="<%= @title %>">
+<!-- button_component.html.erb -->
+<button class="<%= classes %>">
+  <%= content %>
+</button>
+```
+
+## Component Composition Example
+
+```mermaid
+flowchart TD
+    A[Card Component] --- B[Card Header]
+    A --- C[Card Content]
+    A --- D[Card Footer]
+    B --- E[Card Title]
+    B --- F[Card Description]
+    
+    style A fill:#f9d5e5,stroke:#333,stroke-width:2px
+    style B fill:#d3f8e2,stroke:#333,stroke-width:2px
+    style C fill:#d3f8e2,stroke:#333,stroke-width:2px
+    style D fill:#d3f8e2,stroke:#333,stroke-width:2px
+    style E fill:#e3f2fd,stroke:#333,stroke-width:2px
+    style F fill:#e3f2fd,stroke:#333,stroke-width:2px
+```
+
+React JSX:
+```jsx
+<Card>
+  <CardHeader>
+    <CardTitle>My Title</CardTitle>
+    <CardDescription>Description here</CardDescription>
+  </CardHeader>
+  <CardContent>Main content goes here</CardContent>
+  <CardFooter>Footer content</CardFooter>
+</Card>
+```
+
+Rails ERB:
+```erb
+<%= render(CardComponent.new) do %>
+  <%= render(CardHeaderComponent.new) do %>
+    <%= render(CardTitleComponent.new) do %>My Title<% end %>
+    <%= render(CardDescriptionComponent.new) do %>Description here<% end %>
   <% end %>
-  <div class="px-6 py-4">
-    <div class="font-bold text-xl mb-2"><%= @title %></div>
-    <p class="text-gray-700 text-base">
-      <%= @description %>
-    </p>
-  </div>
-  <div class="px-6 pt-4 pb-2">
-    <button 
-      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-      data-action="click->card#click"
-    >
-      <%= @buttonText || 'Learn More' %>
-    </button>
-  </div>
-</div>
+  <%= render(CardContentComponent.new) do %>Main content goes here<% end %>
+  <%= render(CardFooterComponent.new) do %>Footer content<% end %>
+<% end %>
 ```
 
-## Generated Application Structure
+## Troubleshooting
 
+### Common Issues
+
+**Issue**: Error about missing dependencies  
+**Solution**: Make sure you've installed all the prerequisites (Node.js, Ruby, Rails, ViewComponent)
+
+**Issue**: Components don't look right  
+**Solution**: Make sure Tailwind CSS is set up in your Rails app
+
+**Issue**: JavaScript interactions don't work  
+**Solution**: Add the `--stimulus` flag when converting
+
+```mermaid
+flowchart TB
+    A[Issue] --- B{What type?}
+    B -->|Missing dependencies| C[Install missing tools]
+    B -->|Visual problems| D[Check Tailwind setup]
+    B -->|JS not working| E[Add --stimulus flag]
+    B -->|Conversion error| F[Try --dry-run first]
+    
+    style A fill:#f9d5e5,stroke:#333,stroke-width:2px
+    style B fill:#eeeeee,stroke:#333,stroke-width:2px
+    style C fill:#d3f8e2,stroke:#333,stroke-width:2px
+    style D fill:#d3f8e2,stroke:#333,stroke-width:2px
+    style E fill:#d3f8e2,stroke:#333,stroke-width:2px
+    style F fill:#d3f8e2,stroke:#333,stroke-width:2px
 ```
-rails-app/
-├── app/
-│   ├── components/
-│   │   └── ui/
-│   │       ├── button_component.rb
-│   │       ├── button_component.html.erb
-│   │       ├── card_component.rb
-│   │       └── card_component.html.erb
-│   ├── controllers/
-│   │   ├── home_controller.rb
-│   │   └── products_controller.rb
-│   ├── javascript/
-│   │   └── controllers/
-│   │       ├── button_controller.js
-│   │       └── card_controller.js
-│   └── views/
-│       ├── home/
-│       │   └── index.html.erb
-│       └── products/
-│           ├── index.html.erb
-│           └── show.html.erb
-├── config/
-│   └── routes.rb
-└── v0-components/  # Original component reference
-    ├── app/
-    │   ├── page.jsx
-    │   └── products/
-    │       ├── page.jsx
-    │       └── [id]/
-    │           └── page.jsx
-    └── components/
-        └── ui/
-            ├── button.jsx
-            └── card.jsx
-```
+
+## Getting Help
+
+If you're stuck or have questions:
+
+1. Check the examples in this documentation
+2. Visit our GitHub repository issues section
+3. Try a simplified example first, then expand
+
+## What's Next?
+
+As you get comfortable with basic conversions, explore the more advanced features like component composition, helper methods, and full application structure conversion.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-MIT
+This project is licensed under the MIT License - see the LICENSE file for details.
 
