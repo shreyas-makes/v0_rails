@@ -2,6 +2,29 @@
 
 The v0-rails converter exists to solve a specific problem: helping Rails developers use modern UI components without JavaScript overhead.
 
+## Getting Started
+
+Before using v0-rails, you need:
+
+1. **A Rails application** with:
+   - ViewComponent installed and configured
+   - tailwindcss-rails gem set up
+   - Stimulus for interactive components (if needed)
+
+2. **A v0 or React project** containing the JSX/TSX components you want to convert
+
+### Basic Workflow:
+1. Set up your Rails app with the required dependencies
+2. Install v0-rails tools (both NPM package and Ruby gem)
+3. Run the converter from your Rails app directory, pointing to your React components
+4. Use the generated ViewComponents in your Rails views
+
+Example workflow:
+```bash
+# From your Rails app directory
+v0-rails "../my-v0-project/components/**/*.jsx" -d app/components -n Ui
+```
+
 ## Why use this tool?
 
 - **Reduced JavaScript** - Converts React components to server-rendered Rails ViewComponents, eliminating client-side React bundle
@@ -199,36 +222,142 @@ Generated ERB template:
 
 The gem and CLI are available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT). 
 
-2. Run conversion targeting JSX/TSX files:
+## Rails Integration
+
+### Required Rails Setup
+
+1. **Install ViewComponent**
+
+   Add to your Gemfile:
+   ```ruby
+   gem "view_component"
+   ```
+
+   Then run:
+   ```bash
+   bundle install
+   ```
+
+2. **Configure ViewComponent**
+
+   In your application.rb:
+   ```ruby
+   # config/application.rb
+   require "view_component"
+   
+   class Application < Rails::Application
+     # ...
+     config.view_component.preview_paths << "#{Rails.root}/spec/components/previews"
+   end
+   ```
+
+3. **Configure ApplicationController** (optional but recommended)
+
+   ```ruby
+   # app/controllers/application_controller.rb
+   class ApplicationController < ActionController::Base
+     view_component_paths << Rails.root.join("app/components")
+   end
+   ```
+
+4. **Setup Stimulus** (if using interactive components)
+
+   Ensure stimulus is installed and configured in your Rails app:
+   ```bash
+   bin/rails stimulus:install
+   ```
+
+### Using Generated Components
+
+Once your components are generated, use them in your Rails views:
+
+```erb
+<%# In any view file %>
+<%= render(Ui::ButtonComponent.new(text: "Click me")) %>
+
+<%# With content blocks %>
+<%= render(Ui::CardComponent.new(title: "My Card")) do %>
+  <p>This content goes inside the card</p>
+<% end %>
+```
+
+## Migration Guide
+
+### React to ViewComponent Comparison
+
+| React Pattern | ViewComponent Equivalent |
+|---------------|--------------------------|
+| `<Button text="Click">` | `<%= render(Ui::ButtonComponent.new(text: "Click")) %>` |
+| `<Card><p>Content</p></Card>` | `<%= render(Ui::CardComponent.new) { tag.p("Content") } %>` |
+| Props | Initialize parameters |
+| Children | Content blocks |
+| Conditional rendering | ERB conditionals |
+| Event handlers | Stimulus controllers |
+
+### Example Migration
+
+**React Component:**
+```jsx
+const Button = ({ primary, size, label, onClick }) => {
+  const mode = primary ? 'bg-blue-500' : 'bg-gray-500';
+  return (
+    <button
+      className={`${mode} text-white rounded px-4 py-2 text-${size}`}
+      onClick={onClick}
+    >
+      {label}
+    </button>
+  );
+}
+```
+
+**Rails ViewComponent Usage:**
+```erb
+<%= render(Ui::ButtonComponent.new(
+  primary: true,
+  size: "sm",
+  label: "Submit",
+  onClick: "handleSubmit"
+)) %>
+```
+
+### Advanced Component Features
+
+- **Component Slots**: Use ViewComponent's slot API for named content areas
+- **Collection Rendering**: Use ViewComponent's collection rendering feature
+- **Preview Examples**: Generate component previews for different states
+
+For more details on ViewComponent usage, see the [ViewComponent documentation](https://viewcomponent.org/).
+
+## Rails Setup Automation
+
+You can automatically configure your Rails application with the required ViewComponent setup:
+
 ```bash
-v0-rails "my-v0-project/**/*.{jsx,tsx}" \
-  -d app/components \
-  -n V0Components \
-  -s
+v0-rails setup
 ```
 
-3. Generated Rails structure:
-```
-rails-app/
-├── app/components/
-│   └── v0_components/
-│       ├── button_component.rb
-│       ├── button_component.html.erb
-│       ├── theme_provider_component.rb
-│       └── theme_provider_component.html.erb
-└── app/javascript/controllers/
-    ├── button_controller.js
-    └── theme_provider_controller.js
-```
+This command:
+- Adds ViewComponent to your Gemfile if not present
+- Configures application.rb with ViewComponent settings
+- Creates component preview directories
+- Sets up Stimulus controllers directory if needed
 
-4. Manually copy CSS files:
-```bash
-cp my-v0-project/app/globals.css rails-app/app/assets/stylesheets/
-```
+## Future Features
 
-### Key Features
+- **Rails Naming Option**: A `--rails-naming` flag to enforce Rails conventions
+- **Props Validation**: Generation of Ruby-style parameter validation
+- **ViewComponent Specific Features**: Support for sidecar CSS files and preview examples
+- **Import CSS Processing**: Improved CSS handling with Rails asset pipeline
+- **Advanced Stimulus Integration**: Better event handling and action mapping
+
+## Key Features
+- **CSS File Support**  
+  Copies and transforms CSS files to Rails asset pipeline
+- **Tailwind Compatibility**  
+  Preserves class names and handles Rails asset path helpers
 - **File Type Support**  
-  Converts `.jsx` and `.tsx` while ignoring other file types
+  Converts `.jsx`, `.tsx` and copies `.css` files
 - **Directory Structure Preservation**  
   Maintains folder hierarchy under destination directory
 - **Name Conversion**  

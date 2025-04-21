@@ -35,10 +35,28 @@ function generateErbTemplate(ir) {
     }
   }
   
+  // Apply JSX-to-ERB conditional improvements
+  template = improveConditionalLogic(template);
+  
   // Post-process the template - clean up whitespace and format ERB tags
   template = formatErbTemplate(template);
   
   return template;
+}
+
+/**
+ * Improve conditional logic conversion from JSX to ERB
+ * @param {string} template - The template to process
+ * @returns {string} - Processed template with improved conditionals
+ */
+function improveConditionalLogic(template) {
+  // Convert common JSX conditional patterns to ERB
+  
+  // Pattern: {condition && <element>...</element>}
+  const conditionalPattern = /\{([^{}]+)\s*&&\s*(<[^>]+>.*?<\/[^>]+>)\}/gs;
+  return template.replace(conditionalPattern, (match, condition, content) => {
+    return `<% if ${convertJsxConditionToErb(condition)} %>${content}<% end %>`;
+  });
 }
 
 /**
@@ -57,7 +75,34 @@ function formatErbTemplate(template) {
     // Clean up unnecessary spaces before self-closing tags
     .replace(/\s+\/>/g, ' />')
     // Remove empty lines
-    .replace(/^\s*[\r\n]/gm, '');
+    .replace(/^\s*[\r\n]/gm, '')
+    // Ensure proper spacing in ERB tags
+    .replace(/<%=/g, '<%= ')
+    .replace(/<%(?!=)/g, '<% ')
+    .replace(/\s+%>/g, ' %>');
+}
+
+/**
+ * Convert JSX condition expressions to ERB compatible syntax
+ * @param {string} condition - JSX condition expression
+ * @returns {string} - ERB compatible condition
+ */
+function convertJsxConditionToErb(condition) {
+  return condition
+    // Replace common JavaScript operators with Ruby equivalents
+    .replace(/===?/g, '==')
+    .replace(/!==?/g, '!=')
+    .replace(/&&/g, '&&')
+    .replace(/\|\|/g, '||')
+    .replace(/!/g, '!')
+    // Convert JavaScript truthiness checks to more explicit Ruby conditions
+    .replace(/\?\.length/g, '&.length')
+    .replace(/\(\s*([a-zA-Z0-9_.]+)\s*\)/g, '$1.present?')
+    // Convert common array/string checks
+    .replace(/([a-zA-Z0-9_.]+)\.length\s*>/g, '$1.length >')
+    .replace(/([a-zA-Z0-9_.]+)\.length\s*</g, '$1.length <')
+    .replace(/([a-zA-Z0-9_.]+)\.length\s*==/g, '$1.length ==')
+    .trim();
 }
 
 module.exports = {
